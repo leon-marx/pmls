@@ -29,7 +29,9 @@ def determine_kappa_auto(num_rep, T, num_trials, kappa_min, kappa_max, M0, level
             data = run_dynamics(links, initials[i], T, kappa)
             density += np.mean(data, axis=1)
         density /= num_rep
-        np.savetxt(f"results/{exp_name}/density_{k}.txt")
+        np.savetxt(f"results/{exp_name}/density_{k}.txt", density)
+        with open(f"results/{exp_name}/kappa_{k}.txt", "w") as f:
+            f.write(f"Kappa: {kappa}")
 
 
 if __name__ == "__main__":
