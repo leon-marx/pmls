@@ -14,8 +14,8 @@ if __name__ == "__main__":
 
     os.makedirs(f"results/{args.exp_name}", exist_ok=True)
     with open(f"results/{args.exp_name}/metadata.csv", "w") as f:
-        f.write("hmn_path;num_rep;T;kappa\n")
-        f.write(f"{args.hmn_path};{args.num_rep};{args.T};{args.kappa}")
+        f.write("hmn_path;num_rep;I_start;kappa\n")
+        f.write(f"{args.hmn_path};{args.num_rep};{args.I_start};{args.kappa}")
 
     links = np.load(args.hmn_path)
 
