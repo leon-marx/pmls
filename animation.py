@@ -89,7 +89,7 @@ class DynamicsAnimation(object):
 if __name__ == "__main__":
     from paper import *
     M0 = 4
-    levels = 3
+    levels = 8
     alpha = 2.5
 
     links = get_HMN(M0, levels, alpha)
@@ -103,12 +103,15 @@ if __name__ == "__main__":
     # intervals = np.stack([a_vals, b_vals], axis=1)
     # delta = 4# Animate
     # initial = np.ones(len(links), dtype=np.uint8)
-    # initial = np.random.randint(0, 2, len(links), dtype=np.uint8)
+    initial = np.random.randint(0, 2, len(links), dtype=np.uint8)
     # initial = np.random.binomial(1, 0.9, len(links)).astype(np.uint8)
-    initial = np.append(np.ones(int(len(links) / 2)), np.zeros(int(len(links) / 2))).astype(np.uint8)
-    kappa = 0.5
-    T = int(len(links) * 3)
-    optionals = [0.1, 1]  # dt, mu for continuous, None for discrete
-    # anim = DynamicsAnimation(run_dynamics_cont, links, initial, kappa, T, optionals)
-    anim = DynamicsAnimation(run_dynamics, links, initial, kappa, T)
-    plt.show()
+    # initial = np.append(np.ones(int(len(links) / 2)), np.zeros(int(len(links) / 2))).astype(np.uint8)
+    for kappa in np.arange(0.1, 0.16, 0.01):
+    # kappa = 0.1#5#25
+    # T = int(len(links) * 3)
+        T = 3 * len(links)
+        # optionals = [0.1, 1]  # dt, mu for continuous, None for discrete
+        # anim = DynamicsAnimation(run_dynamics_cont, links, initial, kappa, T, optionals)
+        print(f"Kappa: {kappa}")
+        anim = DynamicsAnimation(run_dynamics, links, initial, kappa, T)
+        plt.show()
