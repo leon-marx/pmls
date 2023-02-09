@@ -6,7 +6,7 @@ import numpy as np
 
 class DynamicsAnimation(object):
     """An animated plot using matplotlib.animations.FuncAnimation."""
-    def __init__(self, func, links, initial, kappa, T, optionals=None):
+    def __init__(self, func, links, initial, kappa, T, optionals=None, interval=5):
         self.func = func
         self.links = links
         self.initial = initial
@@ -15,13 +15,14 @@ class DynamicsAnimation(object):
         self.optionals = optionals
         self.N = len(self.initial)
         self.t_vals = np.arange(self.T)
+        self.interval = interval
 
         self.stream = self.data_stream()
         self.counter = 0
 
         self.fig, (self.ax1, self.ax2) = plt.subplots(nrows=2, sharex=True, gridspec_kw={"height_ratios": [1, 2.4]})
         plt.subplots_adjust(hspace=-0.2)
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=5,
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=self.interval,
                                           init_func=self.setup_plot, blit=True)
 
         self.ax1.set_ylim(0.0, 1.0)
@@ -36,13 +37,13 @@ class DynamicsAnimation(object):
         linedata = [self.t_vals, np.mean(data, axis=1)]
         matdata = data.T
         self.img = [self.ax1.plot(linedata[0], linedata[1])[0], self.ax2.imshow(matdata)]
-        values = [0, 1]
-        colors = [self.img[-1].cmap(self.img[-1].norm(value)) for value in values]
-        label_dict = {
-            0: "Inactive",
-            1: "Active",
-        }
-        patches = [mpatches.Patch(color=colors[i], label=label_dict[i].format(l=values[i]) ) for i in range(len(values))]
+        # values = [0, 1]
+        # colors = [self.img[-1].cmap(self.img[-1].norm(value)) for value in values]
+        # label_dict = {
+        #     0: "Inactive",
+        #     1: "Active",
+        # }
+        # patches = [mpatches.Patch(color=colors[i], label=label_dict[i].format(l=values[i]) ) for i in range(len(values))]
         # plt.legend(handles=patches, bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0., fontsize=12)
         return self.img
 
@@ -95,23 +96,40 @@ if __name__ == "__main__":
     links = get_HMN(M0, levels, alpha)
     # # np.save("data/links", links)
     # links = np.load("data/links.npy")
-    # # plot_HMN(links)
+    # plot_HMN(links)
     # num_rep = 1000
     # initials = np.random.randint(0, 2, size=(num_rep, len(links)), dtype=np.uint8)
     # a_vals = np.ones(num_rep, dtype=np.uint64) * 100
     # b_vals = np.ones(num_rep, dtype=np.uint64) * 500
     # intervals = np.stack([a_vals, b_vals], axis=1)
     # delta = 4# Animate
-    # initial = np.ones(len(links), dtype=np.uint8)
-    initial = np.random.randint(0, 2, len(links), dtype=np.uint8)
+    initial = np.ones(len(links), dtype=np.uint8)
+    # initial = np.random.randint(0, 2, len(links), dtype=np.uint8)
     # initial = np.random.binomial(1, 0.9, len(links)).astype(np.uint8)
     # initial = np.append(np.ones(int(len(links) / 2)), np.zeros(int(len(links) / 2))).astype(np.uint8)
-    for kappa in np.arange(0.1, 0.16, 0.01):
+    # for kappa in np.arange(0.1, 0.16, 0.01):
     # kappa = 0.1#5#25
     # T = int(len(links) * 3)
-        T = 3 * len(links)
+    T = 3 * len(links)
+    kappa_min = 0.0
+    kappa_max = 0.2
+    while True:
+        kappa = 0.5 * (kappa_min + kappa_max)
         # optionals = [0.1, 1]  # dt, mu for continuous, None for discrete
         # anim = DynamicsAnimation(run_dynamics_cont, links, initial, kappa, T, optionals)
         print(f"Kappa: {kappa}")
-        anim = DynamicsAnimation(run_dynamics, links, initial, kappa, T)
+        anim = DynamicsAnimation(run_dynamics_MC, links, initial, kappa, T)
         plt.show()
+        flag = input("Next step: go down [d] or up [u] or repeat same [enter] or quit [q]? ")
+        if "d" in flag:
+            kappa_max = kappa
+        elif "u" in flag:
+            kappa_min = kappa
+        elif "q" in flag:
+            print("Quitting instantly...")
+            break
+        else:
+            print("Repeating same...")
+    print(f"kappa_min: {kappa_min}")
+    print(f"kappa: {kappa}")
+    print(f"kappa_max: {kappa_max}")

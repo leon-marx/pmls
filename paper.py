@@ -50,7 +50,7 @@ def plot_dynamics(data):
     plt.show()
 
 
-@jit(nopython=True, fastmath=True, parallel=True, cache=True)
+@jit(nopython=True, fastmath=True, cache=True)
 def get_HMN(M0, levels, alpha, verbose=False):
     if (alpha < 4 / (M0 ** 2)) | (alpha > 4):
         print("WARNING! alpha should be in [4/(M0**2), 4]")
@@ -82,7 +82,7 @@ def get_HMN(M0, levels, alpha, verbose=False):
     return links
 
 
-@jit(nopython=True, fastmath=True, parallel=True, cache=True)
+@jit(nopython=True, fastmath=True, cache=True)
 def run_dynamics(links, initial, T, kappa):
     N = len(links)
     data = np.zeros((int(T+1), N), dtype=np.uint8)
@@ -102,7 +102,51 @@ def run_dynamics(links, initial, T, kappa):
     return data
 
 
-@jit(nopython=True, fastmath=True, parallel=True, cache=True)
+@jit(nopython=True, fastmath=True, cache=True)
+def run_dynamics_MC(links, T, kappa):
+    N = len(links)
+    data = np.zeros((int(T+1), N), dtype=np.uint8)
+    data[0] = np.ones(N, dtype=np.uint8)
+    for t in range(T):  # iterate over time
+        data[t+1] = data[t].copy()
+        if np.all(data[t] == 0):
+            return data
+        ind = np.random.choice(np.array([j for j, site in enumerate(data[t]) if site == 1]))  # choose random active node
+        p = np.random.random()
+        if p < kappa / (kappa+1):
+            for j, is_neighbour in enumerate(links[ind]):  # loop over all other nodes
+                if is_neighbour == 1:  # other node is a neighbour
+                    if data[t, j] == 0:  # neighbour is inactive
+                        p = np.random.random()
+                        if p < kappa:  # infection with rate kappa
+                            data[t+1, j] = 1  # activate node
+        data[t+1, ind] = 0  # deactivate chosen node
+    return data
+
+
+@jit(nopython=True, fastmath=True, cache=True)
+def run_dynamics_MC_sparse(links, T, kappa):
+    state = np.ones(len(links), dtype=np.uint8)
+    density = np.zeros((int(T+1)))
+    density[0] = np.mean(state)
+    for t in range(T):  # iterate over time
+        if np.all(state == 0):
+            return density
+        ind = np.random.choice(np.array([j for j, site in enumerate(state) if site == 1]))  # choose random active node
+        p = np.random.random()
+        if p < kappa / (kappa+1):
+            for j, is_neighbour in enumerate(links[ind]):  # loop over all other nodes
+                if is_neighbour == 1:  # other node is a neighbour
+                    if state[j] == 0:  # neighbour is inactive
+                        p = np.random.random()
+                        if p < kappa:  # infection with rate kappa
+                            state[j] = 1  # activate node
+        state[ind] = 0  # deactivate chosen node
+        density[t+1] = np.mean(state)
+    return density
+
+
+@jit(nopython=True, fastmath=True, cache=True)
 def get_FC(slice, delta):
     """
     slice is a binary array of shape (I, N) with
@@ -127,7 +171,7 @@ def get_FC(slice, delta):
     return C / (slice.shape[0]-delta)
 
 
-# @jit(nopython=True, fastmath=True, parallel=True, cache=True)
+# @jit(nopython=True, fastmath=True, cache=True)
 def get_mean_C(links, initials, num_rep, intervals, delta, kappa):
     C = np.zeros((links.shape[0], links.shape[0]), dtype=np.float64)
     # ratios = (num_rep * np.arange(0.1, 1.1, 0.1)).astype(np.uint64)
@@ -141,7 +185,21 @@ def get_mean_C(links, initials, num_rep, intervals, delta, kappa):
     return C / num_rep
 
 
-@jit(nopython=True, fastmath=True, parallel=True, cache=True)
+# @jit(nopython=True, fastmath=True, cache=True)
+def get_mean_C_MC(links, num_rep, I_start, delta, kappa):
+    C = np.zeros((links.shape[0], links.shape[0]), dtype=np.float64)
+    # ratios = (num_rep * np.arange(0.1, 1.1, 0.1)).astype(np.uint64)
+    for i in tqdm(range(num_rep)):
+        # for r in ratios:
+        #     if i == r:
+        #         print(int(100 * i / num_rep), "%")
+        #         break
+        slice = run_dynamics_MC(links, 10 * I_start, kappa)[I_start:]
+        C = C + get_FC(slice, delta)
+    return C / num_rep
+
+
+@jit(nopython=True, fastmath=True, cache=True)
 def get_A(C, theta):
     return np.where(C > theta, 1, 0).astype(np.uint8)
 
