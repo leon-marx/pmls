@@ -40,8 +40,8 @@ if __name__ == "__main__":
     # kappa_min: 0.522705078125
     # kappa: 0.52276611328125
     # kappa_max: 0.5228271484375
-    kappa_min = 0.5
-    kappa_max = 0.7
+    kappa_min = 0.522705078125
+    kappa_max = 0.522705078125
     while True:
         kappa = 0.5 * (kappa_min + kappa_max)
         determine_kappa_manual_MC(num_rep, T, kappa, M0, levels, alpha)

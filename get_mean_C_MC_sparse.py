@@ -62,11 +62,12 @@ def run_dynamics_to_FC(links, I_start, kappa):
 
 
 if __name__ == "__main__":
-    exp_name = "MC_C_high_kappa"
+    exp_name = "MC_C_low_kappa"
     hmn_path = "data/links.npy"
-    num_rep = 10000
+    num_rep = 1000
     I_start = 10000
-    kappa = 0.6
+    # kappa = 0.6
+    kappa = 0.522705078125
 
     os.makedirs(f"results/{exp_name}", exist_ok=True)
     with open(f"results/{exp_name}/metadata.csv", "w") as f:
