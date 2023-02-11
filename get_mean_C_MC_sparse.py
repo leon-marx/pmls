@@ -2,7 +2,7 @@ from paper import *
 import os
 
 
-# @jit(nopython=True, fastmath=True, cache=True)
+# @jit(nopython=True, cache=True)
 def get_mean_C_MC(links, num_rep, I_start, kappa):
     C = np.zeros((links.shape[0], links.shape[0]), dtype=np.float64)
     for i in tqdm(range(num_rep)):
@@ -14,7 +14,7 @@ def get_mean_C_MC(links, num_rep, I_start, kappa):
     return C / num_rep
 
 
-@jit(nopython=True, fastmath=True, cache=True)
+@jit(nopython=True, cache=True)
 def run_dynamics_to_FC(links, I_start, kappa):
     C = np.zeros((links.shape[0], links.shape[0]), dtype=np.uint64)
     to_add = np.zeros((links.shape[0], links.shape[0]), dtype=np.uint8)
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     num_rep = 1000
     I_start = 10000
     # kappa = 0.6
-    kappa = 0.522705078125
+    kappa = 0.515
 
     os.makedirs(f"results/{exp_name}", exist_ok=True)
     with open(f"results/{exp_name}/metadata.csv", "w") as f:

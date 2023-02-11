@@ -50,7 +50,7 @@ def plot_dynamics(data):
     plt.show()
 
 
-@jit(nopython=True, fastmath=True, cache=True)
+@jit(nopython=True, cache=True)
 def get_HMN(M0, levels, alpha, verbose=False):
     if (alpha < 4 / (M0 ** 2)) | (alpha > 4):
         print("WARNING! alpha should be in [4/(M0**2), 4]")
@@ -82,7 +82,7 @@ def get_HMN(M0, levels, alpha, verbose=False):
     return links
 
 
-@jit(nopython=True, fastmath=True, cache=True)
+@jit(nopython=True, cache=True)
 def run_dynamics(links, initial, T, kappa):
     N = len(links)
     data = np.zeros((int(T+1), N), dtype=np.uint8)
@@ -102,7 +102,7 @@ def run_dynamics(links, initial, T, kappa):
     return data
 
 
-@jit(nopython=True, fastmath=True, cache=True)
+@jit(nopython=True, cache=True)
 def run_dynamics_MC(links, T, kappa):
     N = len(links)
     data = np.zeros((int(T+1), N), dtype=np.uint8)
@@ -124,7 +124,7 @@ def run_dynamics_MC(links, T, kappa):
     return data
 
 
-@jit(nopython=True, fastmath=True, cache=True)
+@jit(nopython=True, cache=True)
 def run_dynamics_MC_sparse(links, T, kappa):
     state = np.ones(len(links), dtype=np.uint8)
     density = np.zeros((int(T+1)))
@@ -146,7 +146,7 @@ def run_dynamics_MC_sparse(links, T, kappa):
     return density
 
 
-@jit(nopython=True, fastmath=True, cache=True)
+@jit(nopython=True, cache=True)
 def get_FC(slice, delta):
     """
     slice is a binary array of shape (I, N) with
@@ -171,7 +171,7 @@ def get_FC(slice, delta):
     return C / (slice.shape[0]-delta)
 
 
-# @jit(nopython=True, fastmath=True, cache=True)
+# @jit(nopython=True, cache=True)
 def get_mean_C(links, initials, num_rep, intervals, delta, kappa):
     C = np.zeros((links.shape[0], links.shape[0]), dtype=np.float64)
     # ratios = (num_rep * np.arange(0.1, 1.1, 0.1)).astype(np.uint64)
@@ -185,7 +185,7 @@ def get_mean_C(links, initials, num_rep, intervals, delta, kappa):
     return C / num_rep
 
 
-# @jit(nopython=True, fastmath=True, cache=True)
+# @jit(nopython=True, cache=True)
 def get_mean_C_MC(links, num_rep, I_start, delta, kappa):
     C = np.zeros((links.shape[0], links.shape[0]), dtype=np.float64)
     # ratios = (num_rep * np.arange(0.1, 1.1, 0.1)).astype(np.uint64)
@@ -199,7 +199,7 @@ def get_mean_C_MC(links, num_rep, I_start, delta, kappa):
     return C / num_rep
 
 
-@jit(nopython=True, fastmath=True, cache=True)
+@jit(nopython=True, cache=True)
 def get_A(C, theta):
     return np.where(C > theta, 1, 0).astype(np.uint8)
 

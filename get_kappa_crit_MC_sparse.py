@@ -17,7 +17,7 @@ def determine_kappa_manual_MC(num_rep, T, kappa, M0, levels, alpha, HMN_per_rep=
     fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(18, 6))
     ax1.set_title(f"kappa = {kappa}")
     ax1.plot(density, label="data")
-    ax2.set_title(f"kappa = {kappa} (log-log")
+    ax2.set_title(f"kappa = {kappa} (log-log)")
     ax2.loglog(density, label="data")
     plt.show()
 
